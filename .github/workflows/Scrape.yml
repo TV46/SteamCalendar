@@ -1,0 +1,43 @@
+name: Steam Sales Scraper
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight (UTC)
+  push:
+    branches:
+      - main  # Runs when there is a push to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # You can change this if you need a different environment
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9  # You can change this to your desired version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install selenium webdriver-manager
+
+      # Step 4: Download ChromeDriver and Chrome
+      - name: Install Chrome and ChromeDriver
+        run: |
+          sudo apt update
+          sudo apt install -y wget curl unzip
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current_amd64.deb
+          sudo apt --fix-broken install
+
+      # Step 5: Run the scraper script
+      - name: Run steam sales scraper
+        run: |
+          python Events.py
