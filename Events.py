@@ -9,51 +9,50 @@ from webdriver_manager.chrome import ChromeDriverManager
 def get_steam_sales():
     # Set up Chrome options
     options = Options()
-    options.add_argument("--headless")  # Run in headless mode (no browser window)
+    options.add_argument("--headless")  # run headless for CI
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
-    options.add_argument("--log-level=3")  # Suppress logs
+    options.add_argument("--log-level=3")
 
-    # Install and launch Chrome WebDriver
+    # Use webdriver_manager to install ChromeDriver automatically
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
 
-    # Open SteamDB sales history page
-    url = "https://steamdb.info/sales/history/"
-    driver.get(url)
-
     try:
-        # Wait until the table appears
-        WebDriverWait(driver, 10).until(
+        url = "https://steamdb.info/sales/history/"
+        driver.get(url)
+
+        # Wait until the table is loaded
+        WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-sales-history tbody"))
         )
 
-        # Find sales table rows
         rows = driver.find_elements(By.CSS_SELECTOR, "table.table-sales-history tbody tr")
-
         sales = []
         for row in rows:
             columns = row.find_elements(By.TAG_NAME, "td")
             if len(columns) < 2:
                 continue
-
             sale_name = columns[0].text.strip()
             sale_date = columns[1].text.strip()
             sales.append((sale_name, sale_date))
 
-        # Print results
-        if sales:
-            print("\n📢 Upcoming Steam Sales:")
-            for sale in sales:
-                print(f"{sale[0]} - {sale[1]}")
-        else:
-            print("⚠️ No sales found. The page structure may have changed.")
+        # Write the output to a text file
+        with open("sales_data.txt", "w") as file:
+            if sales:
+                file.write("📢 Upcoming Steam Sales:\n")
+                for sale in sales:
+                    file.write(f"{sale[0]} - {sale[1]}\n")
+            else:
+                file.write("⚠️ No sales found. The page structure may have changed.\n")
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        with open("sales_data.txt", "w") as file:
+            file.write(f"❌ Error: {e}\n")
 
     finally:
         driver.quit()
 
-# Run the script
-get_steam_sales()
+if __name__ == "__main__":
+    get_steam_sales()
+    

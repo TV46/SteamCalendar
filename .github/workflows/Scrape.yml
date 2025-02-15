@@ -5,11 +5,11 @@ on:
     - cron: '0 0 * * *'  # Runs every day at midnight (UTC)
   push:
     branches:
-      - main  # Runs when there is a push to the main branch
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # You can change this if you need a different environment
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Checkout the repository
@@ -17,10 +17,10 @@ jobs:
         uses: actions/checkout@v3
 
       # Step 2: Set up Python
-      - name: Set up Python 3.9
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9  # You can change this to your desired version
+          python-version: '3.x'
 
       # Step 3: Install dependencies
       - name: Install dependencies
@@ -28,23 +28,23 @@ jobs:
           pip install --upgrade pip
           pip install selenium webdriver-manager
 
-      # Step 4: Download ChromeDriver and Chrome
-      - name: Install Chrome and ChromeDriver
+      # Optional: Install Google Chrome if needed (most ubuntu-latest images have Chrome pre-installed)
+      - name: Install Google Chrome
         run: |
-          sudo apt update
-          sudo apt install -y wget curl unzip
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo dpkg -i google-chrome-stable_current_amd64.deb
-          sudo apt --fix-broken install
-          # Download the latest ChromeDriver version that matches the installed Chrome
-          CHROME_VERSION=$(google-chrome-stable --version | awk '{print $3}')
-          DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION)
-          wget https://chromedriver.storage.googleapis.com/$DRIVER_VERSION/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/chromedriver
-          sudo chmod +x /usr/local/bin/chromedriver
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
-      # Step 5: Run the scraper script
+      # Step 4: Run the scraper script
       - name: Run steam sales scraper
+        run: python steam_sales_scraper.py
+
+      # Step 5: Commit and push the output file (sales_data.txt)
+      - name: Commit and push sales data file
         run: |
-          python Events.py
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add sales_data.txt
+          git commit -m "Update sales data" || echo "No changes to commit"
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
