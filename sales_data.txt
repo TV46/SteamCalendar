@@ -1,0 +1,23 @@
+❌ Error: Message: 
+Stacktrace:
+#0 0x56411427ebba <unknown>
+#1 0x564113d1c790 <unknown>
+#2 0x564113d6dc80 <unknown>
+#3 0x564113d6de01 <unknown>
+#4 0x564113dbc944 <unknown>
+#5 0x564113d93a7d <unknown>
+#6 0x564113db9ccc <unknown>
+#7 0x564113d93823 <unknown>
+#8 0x564113d5fa88 <unknown>
+#9 0x564113d60bf1 <unknown>
+#10 0x56411424815b <unknown>
+#11 0x56411424c0e2 <unknown>
+#12 0x56411423501c <unknown>
+#13 0x56411424ccd4 <unknown>
+#14 0x56411421948f <unknown>
+#15 0x56411426d4f8 <unknown>
+#16 0x56411426d6c9 <unknown>
+#17 0x56411427da36 <unknown>
+#18 0x7fb0b4e9caa4 <unknown>
+#19 0x7fb0b4f29c3c <unknown>
+
