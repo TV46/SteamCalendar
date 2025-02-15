@@ -1,0 +1,36 @@
+name: Update Calendar
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Runs every day at midnight UTC
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-calendar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Generate new .ics file
+        run: |
+          echo "BEGIN:VCALENDAR" > calendar.ics
+          echo "VERSION:2.0" >> calendar.ics
+          echo "PRODID:-//My Custom Calendar//EN" >> calendar.ics
+          echo "BEGIN:VEVENT" >> calendar.ics
+          echo "UID:$(date +%s)" >> calendar.ics
+          echo "DTSTAMP:$(date -u +"%Y%m%dT%H%M%SZ")" >> calendar.ics
+          echo "DTSTART:$(date -u -d '+5 days' +"%Y%m%dT%H%M%SZ")" >> calendar.ics
+          echo "DTEND:$(date -u -d '+5 days 1 hour' +"%Y%m%dT%H%M%SZ")" >> calendar.ics
+          echo "SUMMARY:Auto Updated Event" >> calendar.ics
+          echo "DESCRIPTION:This event updates daily." >> calendar.ics
+          echo "LOCATION:Online" >> calendar.ics
+          echo "END:VEVENT" >> calendar.ics
+          echo "END:VCALENDAR" >> calendar.ics
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add calendar.ics
+          git commit -m "Auto-update calendar" || echo "No changes to commit"
+          git push
