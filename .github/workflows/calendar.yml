@@ -26,13 +26,13 @@ jobs:
     - name: Get current date
       id: current_date
       run: echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-    - name: Create release
+    - name: Create release with unique tag
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref_name }}
+        tag_name: "${{ github.ref_name }}-${{ env.CURRENT_DATE }}"  # Adding date to the tag
         release_name: "Release ${{ github.ref_name }} - ${{ env.CURRENT_DATE }}"
         draft: false
         body: ""
