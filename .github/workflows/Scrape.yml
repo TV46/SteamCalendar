@@ -36,7 +36,7 @@ jobs:
 
       # Step 4: Run the scraper script
       - name: Run steam sales scraper
-        run: python steam_sales_scraper.py
+        run: python Events.py
 
       # Step 5: Commit and push the output file (sales_data.txt)
       - name: Commit and push sales data file
