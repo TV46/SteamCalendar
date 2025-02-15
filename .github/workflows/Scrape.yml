@@ -1,5 +1,9 @@
 name: Steam Sales Scraper
 
+# Grant the GitHub Actions token write access to repository contents
+permissions:
+  contents: write
+
 on:
   schedule:
     - cron: '0 0 * * *'  # Runs every day at midnight (UTC)
