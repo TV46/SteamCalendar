@@ -12,9 +12,10 @@ def get_steam_sales():
     options.add_argument("--headless")  # run headless for CI
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")  # help in low-resource environments
     options.add_argument("--log-level=3")
 
-    # Use webdriver_manager to install ChromeDriver automatically
+    # Use webdriver_manager to automatically handle ChromeDriver
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -23,11 +24,17 @@ def get_steam_sales():
         driver.get(url)
 
         # Wait until the table is loaded
-        WebDriverWait(driver, 20).until(
+        WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "table.table-sales-history tbody"))
         )
 
+        # Try to locate the table rows
         rows = driver.find_elements(By.CSS_SELECTOR, "table.table-sales-history tbody tr")
+
+        # If no rows found, raise an exception to trigger our debugging output
+        if not rows:
+            raise Exception("No rows found in the sales table. The page structure may have changed.")
+
         sales = []
         for row in rows:
             columns = row.find_elements(By.TAG_NAME, "td")
@@ -47,8 +54,12 @@ def get_steam_sales():
                 file.write("⚠️ No sales found. The page structure may have changed.\n")
 
     except Exception as e:
+        # Write detailed debugging info on error
         with open("sales_data.txt", "w") as file:
             file.write(f"❌ Error: {e}\n")
+            file.write("\n--- PAGE SOURCE START ---\n")
+            file.write(driver.page_source)
+            file.write("\n--- PAGE SOURCE END ---\n")
 
     finally:
         driver.quit()
